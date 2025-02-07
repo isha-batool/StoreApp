@@ -23,3 +23,4 @@ urlpatterns = [
     path('playground/', include('playground.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
 ] + debug_toolbar_urls()
+
