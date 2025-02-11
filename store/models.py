@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
@@ -9,15 +10,31 @@ class Collection(models.Model):
     title = models.CharField(max_length=255)
     featured_product = models.ForeignKey('Product', on_delete=models.SET_NULL, null=True, related_name='+')
 
+    def __str__(self) -> str:
+        return self.title
+    
+    class Meta:
+        ordering = ['title']
+
 class Product(models.Model):
     slug = models.SlugField()
     title = models.CharField(max_length=255)
     description = models.TextField()
-    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+    unit_price = models.DecimalField(
+        max_digits=6, 
+        decimal_places=2,
+        validators= [MinValueValidator(1)])
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     promotions = models.ManyToManyField(Promotion)
+
+
+    def __str__(self) -> str:
+        return self.title
+    
+    class Meta:
+        ordering = ['title']
 
 
 class Customer(models.Model):
@@ -28,7 +45,7 @@ class Customer(models.Model):
     MEMEBERSHIP_CHOICES = [
         (MEMBERSHIP_BRONZE ,'Bronze'),
         (MEMBERSHIP_SILVER ,'Silver'),
-        (MEMBERSHIP_GOLD ,'G')]
+        (MEMBERSHIP_GOLD ,'Gold')]
     
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -37,6 +54,11 @@ class Customer(models.Model):
     birth_date = models.DateField(null= True)
     membership = models.CharField(max_length=1 , choices = MEMEBERSHIP_CHOICES, default = MEMBERSHIP_BRONZE)
 
+    def __str__(self) -> str:
+        return f'{self.first_name} {self.last_name}'
+    
+    class Meta:
+        ordering = ['first_name','last_name']
 
 class Order(models.Model):
     PAYMENT_STATUS_PENDING = 'P'
